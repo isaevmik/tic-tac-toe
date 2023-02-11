@@ -1,0 +1,540 @@
+openapi: 3.0.3
+info:
+  title: FPS Coursework  - OpenAPI 3.0
+  description: Sample description
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: warlockmikhail@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 3.0.0
+externalDocs:
+  description: Raiffeisen FPS API
+  url: https://pay.raif.ru/doc/sbp.html
+servers:
+  - url: http://127.0.0.1:8080/api/v3
+tags:
+  - name: QRs
+    description: QRs operations
+    externalDocs:
+      description: Reference
+      url: https://pay.raif.ru/doc/sbp.html#tag/qr-creation
+  - name: Order
+    description: Order operations
+    externalDocs:
+      description: Reference
+      url: https://pay.raif.ru/doc/sbp.html#tag/qr-variable
+  - name: Callback
+    description: Payment notification via webhook callback
+    externalDocs:
+      description: Reference
+      url: https://pay.raif.ru/doc/sbp.html#tag/Callback
+paths:
+
+  /qr/create:
+    post:
+      tags:
+        - QRs
+      summary: Create new QR
+      description: Create new QR of specific type
+      operationId: QrCreate
+      requestBody:
+        description: Create new QR of specific type
+        content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QrRequest'
+      responses:
+        '200':
+          description: Successful creation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QrResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Insernal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+                
+  /qr/status/{id}:
+    get:
+      tags:
+        - QRs
+      summary: Get status for QR
+      description: Get status of particular QR
+      operationId: QrStatus
+      parameters:
+        - name: id
+          in: path
+          description: ID of qr to return
+          required: true
+          schema:
+            type: string
+            maxLength: 32
+      responses:
+        '200':
+          description: Successful got
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QrResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Insernal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - api_key: []
+
+  /order/create:
+    post:
+      tags:
+        - Order
+      summary: Create new order
+      description: Create new order with given ammount
+      operationId: OrderCreate
+      requestBody:
+        description: Order creation example
+        content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderRequest'
+      responses:
+        '200':
+          description: Successful creation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Insernal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - api_key: []
+  
+  /order/cancel/{orderId}:
+    delete:
+      tags:
+        - Order
+      summary: Cancel order for QRVariable
+      description: Cancel particular oder by orderId
+      operationId: OrderCancel
+      parameters:
+        - name: orderId
+          in: path
+          description: ID of order to cancel
+          required: true
+          schema:
+            type: string
+            maxLength: 40
+      responses:
+        '200':
+          description: Successful canceled
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Insernal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - api_key: []
+
+  /order/refresh/{orderId}:
+    post:
+      tags:
+        - Order
+      summary: Cancel order for QRVariable
+      description: Cancel particular oder by orderId
+      operationId: OrderRefresh
+      requestBody:
+        description: Create new QR of specific type
+        content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderRequest'
+      parameters:
+        - name: orderId
+          in: path
+          description: ID of order to cancel
+          required: true
+          schema:
+            type: string
+            maxLength: 40
+      responses:
+        '200':
+          description: Successful canceled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Insernal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - api_key: []
+
+  /order/sendStatus:
+    post:
+      tags:
+        - Callback
+      summary: Callback for payment notifications
+      description: Webhook callback
+      operationId: ReceiveWebhookNotification
+      requestBody:
+        description: Send notification
+        content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentRequest'
+      responses:
+        '200':
+          description: Accepted
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Insernal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - api_key: []
+
+
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+          example: 666
+        message:
+          type: string
+          example: We completly fucked
+
+    QrResponse:
+      type: object
+      properties:
+        qrId:
+          type: string
+          example: AD1F2CD7212E48FA919AB52EF0AEFB33
+          maxLength: 32
+        qrStatus:
+          type: string
+          example: NEW
+        qrExpirationDate:
+          type: string
+          example: <YYYY-MM-DD ТHH24:MM:SS±HH:MM>
+        payload:
+          type: string
+          example: https://qr.nspk.ru/AD1F2CD7212E48FA919AB52EF0AEFB33?type=02&bank=10000001&sum=111000&cur=RUB&crc=C08B
+        qrUrl:
+          type: string
+          format: uri
+          example: https://pay-test.raif.ru/api/sbp/v1/qr/AD1F2CD7212E48FA919AB52EF0AEFB33/image
+        subscriptionId:
+          type: string
+          example: 120059
+
+    QrRequest:
+      required:
+        - qrType
+        - sbpMerchantId
+      type: object
+      properties:
+        qrType:
+          type: string
+          example: QRVariable
+        account:
+          type: string
+          example: 40700000000000000000
+        sbpMerchantId:
+          type: string
+          example: MA0000000552
+        redirectUrl:
+          type: string
+          format: uri
+          example: https://bfkh.ru/
+
+    QrOrderInfo:
+      required:
+        - id
+      type: object
+      properties:
+        id:
+          type: string
+          example: AD100004BAL7227F9BNP6KNE007J9B3K
+        additionalInfo:
+          type: string
+          maxLength: 140
+        paymentDetails:
+          type: string
+          maxLength: 140
+    OrderStatus:
+      type: object
+      properties:
+        value:
+          type: string
+          example: NEW
+        date:
+          type: string
+          example: 2021-12-24T11:15:22.000Z
+    OrderExtras:
+      type: object
+      properties:
+        apiClient:
+          type: string
+          example: iiko
+        apiClientVersion:
+          type: string
+          example: 1.0.0
+    
+    OrderResponse:
+      required:
+        - id
+        - amount
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid4
+          example: c5b3fd07-c66b-4f11-a8a2-1cc5d319f9e3
+        amount:
+          type: number
+          format: float
+          example: 1337
+        comment:
+          type: string
+          example: Шоколадный торт
+        extra:
+          $ref: '#/components/schemas/OrderExtras'
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+        expirationDate:
+          type: string
+          example: 2022-01-24T11:15:22.000Z
+        qr:
+          $ref: '#/components/schemas/QrOrderInfo'
+
+    OrderRequest:
+      required:
+        - amount
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid4
+          example: c5b3fd07-c66b-4f11-a8a2-1cc5d319f9e3
+        amount:
+          type: number
+          format: float
+          example: 1337.37
+        comment:
+          type: string
+          maxLength: 140
+        extra:
+          $ref: '#/components/schemas/OrderExtras'
+        expirationDate:
+          type: string
+          example: 2023-01-24T11:14:38+03:00
+        qr:
+          $ref: '#/components/schemas/QrOrderInfo'
+      
+    TransactionPaymentParams:
+      type: object
+      properties:
+        qrId:
+          type: string
+    
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: string
+          example: c5b3fd07-c66b-4f11-a8a2-1cc5d319f9e3
+        orderId:
+          type: string
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+        paymentMethod:
+          type: string
+          example: sbp
+        paymentParams:
+          $ref: '#/components/schemas/TransactionPaymentParams'
+        amount:
+          type: number
+          format: float
+          example: 1337.37
+        comment:
+          type: string
+        extra:
+          $ref: '#/components/schemas/OrderExtras'
+        
+    PaymentRequest:
+      type: object
+      properties:
+        event:
+          type: string
+          example: payment
+        transaction:
+          $ref: '#/components/schemas/Transaction'
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: ApiBearerToken
+      in: header
